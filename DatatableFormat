@@ -1,0 +1,47 @@
+    /// <summary>
+    /// 格式化指定的DataTable
+    /// </summary>
+    /// <param name="OldDT">老的DataTable</param>
+    /// <param name="NewFormat">指定新DataTable格式
+    /// "No”:“编号”,"Name”:“姓名”,"ProjectName”:“项目名称”
+    /// "需保留原字段名":"需保留字段名的新名称"
+    /// </param>
+    /// <param name="NewDT">新DataTable</param>
+    protected void DatatableFormat(DataTable OldDT,string NewFormat,out DataTable NewDT)
+    {
+        DataTable OldDTcopy = OldDT.Copy();
+        string[] StrArray = NewFormat.Split(',');
+        int cl = 0;
+        int OldDTcopyCol = OldDTcopy.Columns.Count;
+        while (cl < OldDTcopyCol)
+        {
+            string ColumnName = OldDTcopy.Columns[cl].ToString();
+            bool IsEqual = false;
+            foreach (string i in StrArray)
+            {
+                string[] iArray = i.Split(':');
+                string OldFieldName = iArray[0].ToString();
+                string NewFieldName = iArray[1].ToString();
+                if (ColumnName == OldFieldName)
+                {
+                    OldDTcopy.Columns[cl].ColumnName = NewFieldName;
+                    IsEqual = true;
+                    cl++;
+                }
+            }
+            if (!IsEqual)
+            {
+                OldDTcopy.Columns.Remove(OldDTcopy.Columns[cl]);
+                OldDTcopyCol--;
+            }
+        }
+        NewDT = OldDTcopy;
+    }
+    
+    
+    应用实例：
+        DataTable NewDT = null;
+        DataTable OldDT = PEIOIdt;
+        string NewFormat = "Datetimes:日期,UnitName:单位名称,BankName:银行名称,CardNo:卡号,Income:收入,Paid:支出,Balance:余额";
+        NewFormat += ",Level1:科目一,Level2:科目二,UnitName1:往来单位,BankName1:往来银行,CardNo1:往来卡号,Remarks:备注";
+        EntCL.ToFormat.ToDataTable(OldDT, NewFormat, out NewDT);
